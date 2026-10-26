@@ -45,19 +45,6 @@ public class UsuarioController {
         return ResponseEntity.ok(service.salvaUsuario(dto));
     }
 
-    //Pesquisando o usuario por meio do body
-    @GetMapping("/pesquisa")
-    @Operation(summary = "Buscar dados de Usuários por email", description = "Buscar dados do usuário")
-    @ApiResponse(responseCode = "200", description = "Usuário encontrado")
-    @ApiResponse(responseCode = "403", description = "Usuário não encontrado")
-    @ApiResponse(responseCode = "500", description = "Erro de servidor")
-    @ApiResponse(responseCode = "401", description = "Credencias inválidas")
-    public ResponseEntity<UsuarioDTOResponse> buscarUsuarioPorEmail(@RequestBody EmailRequest request,
-                                                                    @RequestHeader(name = "Authorization", required = false) String token) {
-        return ResponseEntity.ok(service.buscarUsuarioPorEmail(request.email(), token));
-    }
-
-    public record EmailRequest(String email) {}
 
     //Pesquisando Usuario por meio de parâmetro
     @GetMapping

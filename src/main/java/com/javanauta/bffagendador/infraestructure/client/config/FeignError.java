@@ -26,6 +26,8 @@ public class FeignError implements ErrorDecoder {
                 return new UnauthorizedException("Erro: " + mensagemErro);
             case 400:
                 return new IllegalArgumentException("Erro: " + mensagemErro);
+            case 404:
+                return new RuntimeException("Erro: " + mensagemErro);
             default:
                 return new BusinessException("Erro: " + mensagemErro);
         }
