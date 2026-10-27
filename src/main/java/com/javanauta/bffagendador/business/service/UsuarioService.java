@@ -59,4 +59,12 @@ public class UsuarioService {
         return client.buscarDadosCep(cep);
     }
 
+    public void deletaEnderecoPorId(Long id, String token) {
+        client.deletaEnderecoPorId(id, token);
+    }
+
+    public void deletaTelefonePorId(Long id, String token) {
+        client.deletaTelefonePorId(id, token);
+    }
+
 }

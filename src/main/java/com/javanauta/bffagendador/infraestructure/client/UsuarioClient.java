@@ -57,4 +57,12 @@ public interface UsuarioClient {
     @GetMapping("/endereco/{cep}")
     ViaCepDTOResponse buscarDadosCep(@PathVariable("cep") String cep);
 
+    @DeleteMapping("/endereco/{id}")
+    void deletaEnderecoPorId(@PathVariable("id") Long id,
+                             @RequestHeader("Authorization") String token);
+
+    @DeleteMapping("/telefone/{id}")
+    void deletaTelefonePorId(@PathVariable("id") Long id,
+                             @RequestHeader("Authorization") String token);
+
 }
