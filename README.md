@@ -1,29 +1,44 @@
 # 🚀 BFF Agendador
 
-Backend for Frontend (BFF) desenvolvido em **Java com Spring Boot**, responsável por centralizar e intermediar a comunicação entre o cliente e os microsserviços do sistema de agendamento.
+Backend for Frontend (BFF) do sistema **Agendador de Tarefas**, desenvolvido em **Java com Spring Boot**. Ele centraliza e intermedia a comunicação entre o front-end e os microsserviços da aplicação (usuário, tarefas e notificação), de forma que o cliente conheça apenas uma API.
 
-O projeto utiliza **Feign Client** para comunicação entre serviços, organização baseada em camadas, DTOs para transferência de dados, tratamento personalizado de exceções e configuração de segurança.
+> O front-end deste sistema está em: [agendador-tarefas-front](https://github.com/cardosogoc/agendador-tarefas-front)
+
+---
+
+## ✨ Destaques
+
+- Comunicação declarativa com os microsserviços via **OpenFeign**
+- Autenticação e controle de acesso com **Spring Security** e **JWT**
+- DTOs de entrada e saída separados
+- Exceções personalizadas com resposta de erro padronizada
+- Configuração de **CORS**
+- Documentação interativa com **Swagger / OpenAPI**
+- Imagem **Docker** publicada no Docker Hub
+- Análise de qualidade de código com **SonarQube**
+
+---
 
 ## 🛠️ Tecnologias
 
-* ☕ Java
-* 🌱 Spring Boot
-* 🔗 OpenFeign
-* 🔐 Spring Security
-* 📦 Gradle
-* 🧩 Lombok
-* 📄 DTOs
-* 🐳 Docker
-* 📚 Swagger / OpenAPI
-* 📊 SonarQube
+- ☕ Java
+- 🌱 Spring Boot
+- 🔗 OpenFeign
+- 🔐 Spring Security (JWT)
+- 📦 Gradle
+- 🧩 Lombok
+- 🐳 Docker
+- 📚 Swagger / OpenAPI
+- 📊 SonarQube
+
+---
 
 ## 🏗️ Arquitetura
 
-O projeto atua como uma camada intermediária entre o cliente e os microsserviços da aplicação.
-
 ```text
                     ┌─────────────────┐
-                    │     Cliente     │
+                    │    Front-end    │
+                    │     Angular     │
                     └────────┬────────┘
                              │
                              ▼
@@ -33,165 +48,96 @@ O projeto atua como uma camada intermediária entre o cliente e os microsserviç
                     └────────┬────────┘
                              │
               ┌──────────────┼──────────────┐
-              │              │              │
               ▼              ▼              ▼
-        ┌──────────┐   ┌────────────┐   ┌────────────┐
-        │ Usuário  │   │  Tarefas   │   │ Notificação│
-        │   API    │   │    API     │   │    API     │
-        └──────────┘   └────────────┘   └────────────┘
+        ┌──────────┐   ┌──────────┐   ┌────────────┐
+        │ Usuário  │   │ Tarefas  │   │ Notificação│
+        │   API    │   │   API    │   │    API     │
+        └──────────┘   └──────────┘   └────────────┘
 ```
 
-O BFF concentra as chamadas necessárias para o frontend, evitando que o cliente precise conhecer diretamente os diferentes microsserviços da aplicação.
+### Clientes Feign
+
+| Cliente | Responsabilidade |
+| --- | --- |
+| `UsuarioClient` | Comunicação com o microsserviço de usuários |
+| `TarefasClient` | Comunicação com o microsserviço de tarefas |
+| `EmailClient` | Comunicação com o serviço de notificações |
+
+Os erros das chamadas Feign são tratados em `FeignError`.
+
+---
 
 ## 📂 Estrutura do projeto
 
 ```text
-src
-└── main
-    └── java
-        └── com.javanauta.bffagendador
-            │
-            ├── business
-            │   ├── dto
-            │   │   ├── in
-            │   │   └── out
-            │   │
-            │   ├── enums
-            │   └── service
-            │
-            ├── controller
-            │
-            ├── infrastructure
-            │   ├── client
-            │   │   ├── config
-            │   │   │   ├── FeignConfig
-            │   │   │   └── FeignError
-            │   │   │
-            │   │   ├── EmailClient
-            │   │   ├── TarefasClient
-            │   │   └── UsuarioClient
-            │   │
-            │   ├── configs
-            │   │   └── CorsConfig
-            │   │
-            │   ├── exceptions
-            │   │   ├── dto
-            │   │   │   └── ErrorResponseDTO
-            │   │   ├── BusinessException
-            │   │   ├── ConflictException
-            │   │   ├── IllegalArgumentException
-            │   │   ├── ResourceNotFoundException
-            │   │   └── UnauthorizedException
-            │   │
-            │   └── security
-            │       └── SecurityConfig
-            │
-            └── BffAgendadorApplication
+src/main/java/com/javanauta/bffagendador
+├── business
+│   ├── dto
+│   │   ├── in                 # Dados de entrada
+│   │   └── out                # Dados de saída
+│   ├── enums
+│   └── service
+├── controller
+├── infrastructure
+│   ├── client
+│   │   ├── config             # FeignConfig e FeignError
+│   │   ├── EmailClient
+│   │   ├── TarefasClient
+│   │   └── UsuarioClient
+│   ├── configs
+│   │   └── CorsConfig
+│   ├── exceptions             # Exceções personalizadas e ErrorResponseDTO
+│   └── security
+│       └── SecurityConfig
+└── BffAgendadorApplication
 ```
 
-## 🔗 Comunicação entre microsserviços
-
-A comunicação com os demais serviços é realizada utilizando **OpenFeign**, permitindo que o BFF consuma as APIs de forma declarativa.
-
-Os principais clientes são:
-
-* `UsuarioClient` — comunicação com o microsserviço de usuários.
-* `TarefasClient` — comunicação com o microsserviço de tarefas.
-* `EmailClient` — comunicação com o serviço responsável pelas notificações.
-
-Também existem configurações específicas para o Feign, incluindo tratamento de erros através de `FeignError`.
+---
 
 ## 🔐 Segurança
 
-O projeto possui uma camada de segurança utilizando **Spring Security**.
-
-A configuração de segurança está centralizada em:
-
-```text
-infrastructure/security/SecurityConfig
-```
-
-O BFF também trabalha com autenticação baseada em **JWT**, realizando o controle de acesso às operações protegidas.
-
-## 📦 DTOs
-
-Os dados utilizados na comunicação da aplicação são separados em DTOs de entrada e saída:
-
-```text
-business
-└── dto
-    ├── in
-    └── out
-```
-
-Essa separação evita a exposição direta das estruturas internas da aplicação e facilita o controle dos dados recebidos e enviados pela API.
+A configuração de segurança fica em `infrastructure/security/SecurityConfig`. O acesso às operações protegidas é controlado por **token JWT**, enviado no header `Authorization`.
 
 ## ⚠️ Tratamento de exceções
 
-O projeto possui exceções personalizadas para representar diferentes situações da aplicação:
+Exceções personalizadas representam as diferentes situações da aplicação:
 
-* `BusinessException`
-* `ConflictException`
-* `ResourceNotFoundException`
-* `UnauthorizedException`
-* `IllegalArgumentException`
+- `BusinessException`
+- `ConflictException`
+- `ResourceNotFoundException`
+- `UnauthorizedException`
+- `IllegalArgumentException`
 
-Também existe um DTO específico para padronização das respostas de erro:
-
-```text
-ErrorResponseDTO
-```
-
-Isso permite que a API mantenha respostas de erro mais consistentes para o cliente.
+As respostas de erro seguem o padrão do `ErrorResponseDTO`, mantendo a API consistente para o cliente.
 
 ## 🌐 CORS
 
-A configuração de **CORS (Cross-Origin Resource Sharing)** está centralizada em:
+A configuração está em `infrastructure/configs/CorsConfig` e define quais origens podem fazer requisições ao BFF.
+
+---
+
+## ✅ Pré-requisitos
+
+- JDK instalado
+- Docker e Docker Compose (opcional)
+
+O projeto já inclui o Gradle Wrapper (`gradlew`), então não é necessário instalar o Gradle.
+
+## ⚙️ Configuração
+
+As URLs dos microsserviços são configuradas por **variáveis de ambiente**, de acordo com o ambiente de execução. Em um ambiente com Docker Compose, use o nome dos containers:
 
 ```text
-infrastructure/configs/CorsConfig
+USUARIO_URL=http://usuario:8080/usuario
+AGENDADOR_TAREFAS_URL=http://agendador-tarefas:8081/tarefas
+NOTIFICACAO_URL=http://notificacao:8082/email
 ```
 
-Essa configuração permite controlar quais origens podem realizar requisições para o BFF.
-
-## 📖 Documentação da API
-
-A API pode ser documentada e testada através do **Swagger / OpenAPI**.
-
-Após iniciar a aplicação, acesse a interface do Swagger através da URL configurada para o projeto.
-
-## 🐳 Docker
-
-O projeto também pode ser executado utilizando Docker, permitindo que o BFF seja executado junto aos demais microsserviços da aplicação.
-
-Exemplo de arquitetura utilizando containers:
-
-```text
-┌──────────────────────────────────────────┐
-│              Docker Compose              │
-│                                          │
-│  ┌────────────┐     ┌───────────────┐   │
-│  │    BFF     │────▶│    Usuário    │   │
-│  └────────────┘     └───────────────┘   │
-│        │                                 │
-│        ├──────────────▶ Tarefas          │
-│        │                                 │
-│        └──────────────▶ Notificação      │
-│                                          │
-└──────────────────────────────────────────┘
-```
+> Evite deixar informações sensíveis diretamente no código; prefira variáveis de ambiente.
 
 ## ▶️ Como executar
 
-### Pré-requisitos
-
-* Java instalado
-* Gradle
-* Docker e Docker Compose (opcional)
-
-### Executando com Gradle
-
-Clone o projeto e execute:
+### Com Gradle
 
 ```bash
 ./gradlew bootRun
@@ -203,78 +149,59 @@ No Windows:
 gradlew.bat bootRun
 ```
 
-### Executando com Docker
+### Com Docker
 
-Caso esteja utilizando Docker Compose:
+Usando a imagem publicada no Docker Hub: [cardosogoc/bff-agendador](https://hub.docker.com/r/cardosogoc/bff-agendador)
+
+Ou, com Docker Compose, junto dos demais serviços:
 
 ```bash
 docker compose up --build
 ```
 
-## ⚙️ Configuração
+---
 
-As URLs dos microsserviços devem ser configuradas de acordo com o ambiente em que a aplicação está sendo executada.
+## 📖 Documentação da API
 
-Em um ambiente Docker Compose, os serviços podem ser acessados através dos nomes dos respectivos containers.
+Com a aplicação rodando, acesse o Swagger:
 
-Exemplo:
+**http://localhost:8083/swagger-ui/index.html**
 
-```text
-USUARIO_URL=http://usuario:8080/usuario
-AGENDADOR_TAREFAS_URL=http://agendador-tarefas:8081/tarefas
-NOTIFICACAO_URL=http://notificacao:8082/email
-```
-
-> Recomenda-se utilizar variáveis de ambiente para informações específicas de cada ambiente, evitando deixar configurações sensíveis diretamente no código.
+---
 
 ## 📊 Qualidade de código
 
-O projeto utiliza **SonarQube** para análise estática e acompanhamento da qualidade do código.
+O **SonarQube** é usado para análise estática, acompanhando bugs, vulnerabilidades, code smells, cobertura de testes, duplicação de código e manutenibilidade.
 
-A análise permite identificar problemas relacionados a:
-
-* Bugs
-* Vulnerabilidades
-* Code Smells
-* Cobertura de testes
-* Duplicação de código
-* Manutenibilidade
+---
 
 ## 🎯 Objetivo
 
-O projeto foi desenvolvido com o objetivo de aplicar conceitos de **arquitetura de microsserviços**, comunicação entre APIs e desenvolvimento de aplicações backend utilizando o ecossistema Spring.
+Projeto desenvolvido para aplicar, na prática, conceitos de **arquitetura de microsserviços**, comunicação entre APIs e desenvolvimento backend com o ecossistema Spring: arquitetura BFF, REST, OpenFeign, DTOs, Spring Security com JWT, tratamento de exceções, CORS, Docker, Swagger e SonarQube.
 
-Entre os principais conceitos aplicados estão:
+---
 
-* Arquitetura BFF
-* Microsserviços
-* REST APIs
-* OpenFeign
-* DTOs
-* Spring Security
-* JWT
-* Tratamento de exceções
-* CORS
-* Docker
-* Swagger / OpenAPI
-* SonarQube
-* Separação de responsabilidades
-* Configuração por variáveis de ambiente
+## 🔗 Links do projeto
 
-## 🔗 Links do Projeto
+**Microsserviços**
 
-### 📂 Microsserviços
+- [usuario_recap](https://github.com/cardosogoc/usuario_recap)
+- [agendador-tarefas_recap](https://github.com/cardosogoc/agendador-tarefas_recap)
+- [notificacao_recap](https://github.com/cardosogoc/notificacao_recap)
 
-* **Usuário:** [usuario_recap — GitHub](https://github.com/cardosogoc/usuario_recap?utm_source=chatgpt.com)
-* **Agendador de Tarefas:** [agendador-tarefas_recap — GitHub](https://github.com/cardosogoc/agendador-tarefas_recap?utm_source=chatgpt.com)
-* **Notificação:** [notificacao_recap — GitHub](https://github.com/cardosogoc/notificacao_recap?utm_source=chatgpt.com)
+**Front-end**
 
-### 🐳 Docker Hub
+- [agendador-tarefas-front](https://github.com/cardosogoc/agendador-tarefas-front)
 
-* **BFF Agendador:** [Docker Hub — cardosogoc/bff-agendador](https://hub.docker.com/r/cardosogoc/bff-agendador/tags?utm_source=chatgpt.com)
+**Docker Hub**
+
+- [cardosogoc/bff-agendador](https://hub.docker.com/r/cardosogoc/bff-agendador)
+
+---
 
 ## 👨‍💻 Autor
 
-**Gabriel Cardoso**
+**Gabriel de Oliveira Cardoso**
 
-Projeto desenvolvido para estudos e evolução prática em **desenvolvimento Backend Java e Spring Boot**.
+- GitHub: [@cardosogoc](https://github.com/cardosogoc)
+- LinkedIn: [gabriel-cardoso-developer](https://www.linkedin.com/in/gabriel-cardoso-developer/)
