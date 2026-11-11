@@ -28,8 +28,10 @@ public class CronService {
     @Scheduled(cron = "${cron.horario}")
     public void buscaTarefasProximaHora(){
         String token = login(converterParaRequestDTO());
-        LocalDateTime horaFutura = LocalDateTime.now().plusHours(1);
-        LocalDateTime horaFuturaMaisTres = LocalDateTime.now().plusHours(1).plusMinutes(3);
+        LocalDateTime agora = LocalDateTime.now();
+
+        LocalDateTime horaFutura = agora.plusHours(1);
+        LocalDateTime horaFuturaMaisTres = horaFutura.plusMinutes(3);
 
         List<TarefasDTOResponse> listaTarefas = tarefasService
                 .buscaTarefasAgendadasPorPeriodo(horaFutura, horaFuturaMaisTres, token);

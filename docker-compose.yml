@@ -7,6 +7,8 @@ services:
     environment:
       - SPRING_MONGODB_URI=mongodb://mongo:27017/db_agendador
       - USUARIO_URL=http://usuario:8080
+      - JWT_SECRET=${JWT_SECRET}
+      - TZ=America/Sao_Paulo
     depends_on:
       - mongo
       - usuario
@@ -20,6 +22,7 @@ services:
       - USUARIO_URL=http://usuario:8080/usuario
       - AGENDADOR_TAREFAS_URL=http://agendador-tarefas:8081/tarefas
       - NOTIFICACAO_URL=http://notificacao:8082/email
+      - TZ=America/Sao_Paulo
     depends_on:
       - usuario
       - agendador-tarefas
@@ -34,31 +37,51 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/db_usuario
       SPRING_DATASOURCE_USERNAME: admin
       SPRING_DATASOURCE_PASSWORD: admin
+      JWT_SECRET: ${JWT_SECRET}
+      TZ: America/Sao_Paulo
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
 
   notificacao:
     build: ../notificacao_recap
     container_name: notificacao
     ports:
       - "8082:8082"
+    environment:
+      SPRING_MAIL_USERNAME: gabrieloc6@gmail.com
+      MAIL_PASSWORD_NOTIFICACAO: ${MAIL_PASSWORD_NOTIFICACAO}
+      TZ: America/Sao_Paulo
 
   postgres:
-    image: postgres:latest
+    image: postgres:17
     container_name: postgres
-    restart: no
+    restart: "no"
     environment:
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: admin
       POSTGRES_DB: db_usuario
     ports:
       - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin -d db_usuario"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
 
   mongo:
     image: mongo:latest
     container_name: mongo
-    restart: no
+    restart: "no"
     ports:
       - "27017:27017"
     environment:
       MONGO_INITDB_DATABASE: db_agendador
+    volumes:
+      - mongo_data:/data/db
+
+volumes:
+  postgres_data:
+  mongo_data:
