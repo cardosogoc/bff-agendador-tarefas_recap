@@ -3,6 +3,7 @@ package com.javanauta.bffagendador.business.service;
 import com.javanauta.bffagendador.business.dto.in.LoginDTORequest;
 import com.javanauta.bffagendador.business.dto.out.TarefasDTOResponse;
 import com.javanauta.bffagendador.business.enums.StatusNotificacaoEnum;
+import com.javanauta.bffagendador.infraestructure.message.producer.EmailProducer;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -16,7 +17,7 @@ import java.util.List;
 public class CronService {
 
     private final TarefasService tarefasService;
-    private final EmailService emailService;
+    private final EmailProducer emailProducer;
     private final UsuarioService usuarioService;
 
     @Value("${usuario.email}")
@@ -35,8 +36,8 @@ public class CronService {
                 .buscaTarefasAgendadasPorPeriodo(horaFutura, horaFuturaMaisTres, token);
 
         listaTarefas.forEach(tarefa -> {
-            emailService.enviarEmail(tarefa);
-            tarefasService.alterarStatus(StatusNotificacaoEnum.NOTIFICADO, tarefa.getId(), token);
+            emailProducer.enviarEmail(tarefa);
+            tarefasService.alterarStatus(StatusNotificacaoEnum.AGUARDANDO, tarefa.getId(), token);
         });
     }
 
